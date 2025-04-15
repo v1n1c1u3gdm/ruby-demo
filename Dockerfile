@@ -43,3 +43,12 @@ RUN echo 'export NVM_DIR="/usr/local/nvm"' >> /root/.bashrc && \
     echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /root/.bashrc
     
 RUN echo "alias rails s='rails s -b 0.0.0.0'" >> /root/.bashrc
+
+ARG UID=1000
+ARG GID=1000
+
+RUN getent group $GID || groupadd -g $GID devgroup && \
+    useradd -m -u $UID -g $GID devuser
+
+USER devuser
+WORKDIR /app

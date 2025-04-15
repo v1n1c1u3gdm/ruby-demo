@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        UID: ${UID}
+        GID: ${GID}
     volumes:
       - .:/app
     ports:
