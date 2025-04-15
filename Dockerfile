@@ -51,6 +51,8 @@ RUN group_name=$(getent group $GID | cut -d: -f1 || echo "devgroup") && \
     getent group $GID || groupadd -g $GID "$group_name" && \
     useradd -m -u $UID -g $GID devuser && \
     echo 'source /etc/profile.d/rvm.sh' >> /home/devuser/.bashrc && \
+    echo 'export NVM_DIR="/usr/local/nvm"' >> /home/devuser/.bashrc && \
+    echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /home/devuser/.bashrc && \
     chown devuser:$GID /home/devuser/.bashrc
 
 USER devuser
