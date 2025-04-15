@@ -47,8 +47,11 @@ RUN echo "alias rails s='rails s -b 0.0.0.0'" >> /root/.bashrc
 ARG UID=1000
 ARG GID=1000
 
-RUN getent group $GID || groupadd -g $GID devgroup && \
-    useradd -m -u $UID -g $GID devuser
+RUN group_name=$(getent group $GID | cut -d: -f1 || echo "devgroup") && \
+    getent group $GID || groupadd -g $GID "$group_name" && \
+    useradd -m -u $UID -g $GID devuser && \
+    echo 'source /etc/profile.d/rvm.sh' >> /home/devuser/.bashrc && \
+    chown devuser:$GID /home/devuser/.bashrc
 
 USER devuser
 WORKDIR /app
