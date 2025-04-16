@@ -59,3 +59,4 @@ build-iPhoneSimulator/
 /config/master.key
 log/development.log
 db/development.sqlite3
+Gemfile.lock
