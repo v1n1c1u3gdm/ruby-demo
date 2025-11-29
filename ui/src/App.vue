@@ -21,9 +21,7 @@
 
     <div class="content">
       <header class="top">
-        <div class="top__item">
-          <span class="logo">Risadas, ódio e sangue</span>
-        </div>
+        <div class="top__item" aria-hidden="true"></div>
 
         <div class="top__item top__item--right">
           <button
@@ -81,6 +79,9 @@
           </div>
 
           <footer class="footer">
+            <div class="footer__copyright">
+              Do primeiro e único... VGDM ®
+            </div>
             <div class="footer__social">
               <a
                 v-for="social in socials"
@@ -93,9 +94,6 @@
               >
                 <i :class="social.icon"></i>
               </a>
-            </div>
-            <div class="footer__copyright">
-              Do primeiro e único... VGDM ®
             </div>
           </footer>
         </div>
@@ -258,6 +256,13 @@ export default {
 .content {
   min-height: 100vh;
   background: var(--white);
+  transition: transform 0.5s cubic-bezier(0, 0.98, 1, 1);
+  will-change: transform;
+  overflow-x: hidden;
+}
+
+.layout-wrapper.is-menu .content {
+  transform: translateX(calc(-1 * var(--side-nav-width)));
 }
 
 .top {
@@ -454,7 +459,8 @@ export default {
   margin-top: 3rem;
   padding-top: 1.5rem;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   gap: 1rem;
 }
 
@@ -462,6 +468,16 @@ export default {
   margin-right: 0.75rem;
   color: var(--gray-2);
   font-size: 1rem;
+}
+
+.footer__social {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.footer__social .social-icon:last-child {
+  margin-right: 0;
 }
 
 .footer__social .social-icon:hover {
@@ -473,6 +489,17 @@ export default {
   font-size: 0.7rem;
   letter-spacing: 1px;
   text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer__social {
+    margin-left: 0;
+  }
 }
 
 @media (max-width: 991.98px) {
@@ -487,6 +514,16 @@ export default {
 }
 
 @media (min-width: 992px) {
+  .layout-wrapper {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .content {
+    height: 100vh;
+    overflow: hidden;
+  }
+
   .top {
     position: fixed;
     width: 60%;
@@ -526,7 +563,8 @@ export default {
   .main__right {
     margin-left: 40vw;
     padding: calc(var(--navbar-height) + 3.75rem) 6% 3rem;
-    min-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
   }
 }
 </style>
