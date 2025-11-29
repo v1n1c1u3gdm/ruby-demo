@@ -1,39 +1,60 @@
-# 💎 Projeto Rails com Docker (Ruby 2.6 + Rails 5.2)
+# Ruby Demo (Rails 7 API + MySQL)
 
-Este projeto roda em um ambiente Dockerizado, compatível com qualquer host com suporte a Docker mas foi testado com Fedora 41 e Docker-CE, Windows 11 c/ WSL2. O projeto é essencialmente o resultado do meu aprendizado conforme estudo realizado através do curso https://www.udemy.com/course/draft/1694986/#:~:text=Descri%C3%A7%C3%A3o,de%20desenvolvimento%20Web%20com%20Rails.
+Repositório reiniciado para uma nova fase: uma API Rails moderna rodando sobre Ruby **3.3.10**, exposta via Puma e com MySQL containerizado. A raiz está organizada em dois módulos:
 
-A stack inclui (conforme o curso):
+- `api/` – aplicação Rails 7.2.3 (modo API) utilizando `mysql2`.
+- `ui/` – placeholder para a futura interface; vazio por enquanto.
 
-- ubuntu:20.04 (por conveniência o mesmo do WSL2 em abr/25)
-- Ruby 2.6.10 via RVM
-- Rails 5.2
-- Node.js 18 via NVM
-- SQLite3
-- Docker + Docker Compose
+## Stack
 
----
+- Ruby 3.3.10 (RVM + gemset `ruby-demo`)
+- Rails 7.2.3
+- Puma
+- MySQL 8.4 (dockerizado)
+- Docker + Docker Compose usando `ruby:3.3.10-slim`
 
-## 🚀 Guia rápido
-Execute os seguintes comandos para executar a aplicação rapidamente
+## Comandos iniciais utilizados
 
-### Dentro do host (quem roda o docker)
-O script *(setup.sh*) vai exportar seu UID e GID, "buildar" o container (caso necessário) e subir o ambiente em modo detached. Acesse o container com attach do docker e utilize o path /app para "conectar-se" ao seu sistema host. Todo controle de versão foi pensado para ocorrer a partir do host (utilize o parâmetro *services > rails-dev > build > volumes* para definitir onde isso dar-se-á dentro do guest)
+Esses foram os passos executados após o reset para preparar o ambiente Ruby e gerar a API:
 
 ```bash
-git clone git@github.com:$SUA_CONTA_GITHUB/ruby-demo.git
-cd ruby-demo
-chmod +x setup.sh
-./setup.sh
-docker container ls # descubra qual o id de container foi gerado para você
-docker attach 654s8476968 # utilize o id identificado na linha acima
+# garantir que o RVM esteja carregado
+source ~/.rvm/scripts/rvm
+
+# criar/usar a gemset
+rvm use 3.3.10@ruby-demo --create
+
+# instalar ferramentas
+gem install bundler
+gem install rails -v 7.2.3
+
+# gerar a aplicação
+rails new api --api -d mysql \
+  --skip-action-mailbox \
+  --skip-action-text \
+  --skip-test
 ```
 
-### Dentro do guest (o container)
+## Executando com Docker
+
 ```bash
-rails new .
-bundle install
-rails db:migrate
-rails s -b 0.0.0.0 # vai permitir acesso à execução a partir do host.
+docker compose build          # monta a imagem ruby:3.3.10-slim + gems
+docker compose run --rm api bin/rails db:prepare # cria o schema no MySQL
+docker compose up             # sobe API (porta 3000) + MySQL (porta 3306)
 ```
 
-Agora siga seu fluxo de desenvolvimento RoR normal.
+A aplicação Rails conversa com o banco usando as credenciais fixas:
+
+- host `db`
+- user `ruby-demo`
+- password `2u8y-c0d3`
+- databases `ruby_demo_development` / `ruby_demo_test`
+
+Essas variáveis já vêm definidas no `docker-compose.yml`, mas podem ser sobrescritas ao rodar localmente.
+
+## Desenvolvimento fora do Docker
+
+1. Configure o RVM: `rvm use 3.3.10@ruby-demo --create`.
+2. Instale dependências dentro de `api/`: `bundle install`.
+3. Exporte as variáveis de banco (ou use um `.env`) e rode `bin/rails db:prepare`.
+4. Inicie o servidor: `bin/rails server -b 0.0.0.0`.

@@ -1,62 +1,29 @@
-*.gem
-*.rbc
-/.config
-/coverage/
-/InstalledFiles
-/pkg/
-/spec/reports/
-/spec/examples.txt
-/test/tmp/
-/test/version_tmp/
-/tmp/
-
-# Used by dotenv library to load environment variables.
-# .env
-
-# Ignore Byebug command history file.
-.byebug_history
-
-## Specific to RubyMotion:
-.dat*
-.repl_history
-build/
-*.bridgesupport
-build-iPhoneOS/
-build-iPhoneSimulator/
-
-## Specific to RubyMotion (use of CocoaPods):
-#
-# We recommend against adding the Pods directory to your .gitignore. However
-# you should judge for yourself, the pros and cons are mentioned at:
-# https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
-#
-# vendor/Pods/
-
-## Documentation cache and generated files:
-/.yardoc/
-/_yardoc/
-/doc/
-/rdoc/
-
-## Environment normalization:
-/.bundle/
+# Ignore bundler artifacts
+/.bundle
 /vendor/bundle
-/lib/bundler/man/
 
-# for a library or gem, you might want to ignore these files since the code is
-# intended to run in multiple environments; otherwise, check them in:
-# Gemfile.lock
-# .ruby-version
-# .ruby-gemset
+# Rails runtime files
+/api/log/*
+!/api/log/.keep
+/api/tmp/*
+!/api/tmp/.keep
+/api/storage/*
+!/api/storage/.keep
+/api/.byebug_history
+/api/node_modules
+/api/.DS_Store
 
-# unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
-.rvmrc
+# Environment files
+.env
+.env.*
 
-# Used by RuboCop. Remote config files pulled in from inherit_from directive.
-# .rubocop-https?--*
+# Editor/OS cruft
+.DS_Store
+*.swp
+*.swo
 
-# Ignore master key for decrypting credentials and more.
-/config/master.key
-log/development.log
-db/development.sqlite3
-Gemfile.lock
+# UI workspace
+/ui/node_modules
+/ui/dist
+/ui/.vite
+

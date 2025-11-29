@@ -1,14 +1,46 @@
+version: "3.9"
+
 services:
-  rails-dev:
+  api:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        UID: ${UID}
-        GID: ${GID}
-    volumes:
-      - .:/app
+    working_dir: /app
+    command: bundle exec puma -C config/puma.rb
+    environment:
+      RAILS_ENV: development
+      DB_HOST: db
+      DB_USERNAME: ruby-demo
+      DB_PASSWORD: 2u8y-c0d3
+      DB_PORT: 3306
     ports:
       - "3000:3000"
-    stdin_open: true
-    tty: true
+    volumes:
+      - ./api:/app
+      - bundle:/usr/local/bundle
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.4
+    command: --default-authentication-plugin=caching_sha2_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ruby_demo_development
+      MYSQL_USER: ruby-demo
+      MYSQL_PASSWORD: 2u8y-c0d3
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  bundle:
+  mysql_data:

@@ -1,0 +1,16 @@
+.git
+.gitignore
+.ruby-version
+.ruby-gemset
+.env
+.env.*
+tmp
+log
+ui/node_modules
+ui/dist
+ui/.vite
+api/log
+api/tmp
+api/storage
+api/vendor/bundle
+
