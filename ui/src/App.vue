@@ -1,79 +1,106 @@
 <template>
-  <div class="layout-wrapper d-flex flex-column min-vh-100">
-    <header class="site-header py-3 border-bottom bg-white">
-      <div class="container-fluid d-flex justify-content-between align-items-center">
-        <span></span>
-        <b-button variant="outline-secondary" size="sm" @click="toggleSidebar">
-          <b-icon icon="list"></b-icon>
-        </b-button>
-      </div>
-    </header>
-
-    <div class="flex-grow-1 d-flex flex-column flex-lg-row">
-      <main class="primary-area flex-grow-1 d-flex">
-        <aside class="hero-panel d-none d-md-flex" :style="heroPanelStyle">
-          <div class="hero-overlay">
-            <h1>Risadas, ódio e sangue</h1>
-          </div>
-        </aside>
-
-        <section class="post-section flex-grow-1">
-          <div class="hero-panel-mobile d-md-none mb-4" :style="heroPanelStyle">
-            <div class="hero-overlay">
-              <h1>Risadas, ódio e sangue</h1>
-            </div>
-          </div>
-
-          <article
-            v-for="post in posts"
-            :key="post.title"
-            class="post-card py-4 px-3 border-bottom bg-white rounded"
-          >
-            <header>
-              <h2 class="post-title">
-                <a :href="post.url" target="_blank" rel="noopener">
-                  {{ post.title }}
-                </a>
-              </h2>
-              <small class="text-muted">{{ post.date }}</small>
-            </header>
-            <p class="mt-2 mb-0 text-secondary">
-              {{ post.excerpt }}
-            </p>
-          </article>
-
-          <div class="text-right py-3 px-3">
-            <b-button variant="outline-dark" size="sm" href="https://viniciusmenezes.com/page/2/" target="_blank" rel="noopener">
-              Previous
-            </b-button>
-          </div>
-        </section>
-      </main>
-
-      <aside :class="['nav-sidebar bg-white border-left', { collapsed: sidebarCollapsed }]">
-        <nav class="nav flex-column">
+  <div :class="['layout-wrapper js-container', { 'is-menu': isMenuOpen }]">
+    <nav class="menu" aria-label="Menu lateral">
+      <ul class="navbar__menu">
+        <li
+          v-for="link in navLinks"
+          :key="link.label"
+          :class="{ active: link.active }"
+        >
           <a
-            v-for="link in navLinks"
-            :key="link.label"
-            class="nav-link text-capitalize"
             :href="link.href"
             :target="link.external ? '_blank' : '_self'"
             rel="noopener"
+            @click="handleMenuLinkClick"
           >
             {{ link.label }}
           </a>
-        </nav>
-      </aside>
-    </div>
+        </li>
+      </ul>
+    </nav>
 
-    <footer class="site-footer mt-auto py-3 border-top text-center bg-white">
-      <div class="social-links mb-2">
-        <a v-for="social in socials" :key="social.label" :href="social.href" target="_blank" rel="noopener">
-          {{ social.label }}
-        </a>
-      </div>
-      <small>Do primeiro e único... VGDM ®</small>
-    </footer>
+    <div class="content">
+      <header class="top">
+        <div class="top__item">
+          <span class="logo">Risadas, ódio e sangue</span>
+        </div>
+
+        <div class="top__item top__item--right">
+          <button
+            type="button"
+            class="menu-toggle js-menu-toggle"
+            :class="{ 'is-active': isMenuOpen }"
+            aria-label="Menu"
+            :aria-expanded="isMenuOpen ? 'true' : 'false'"
+            @click.prevent="handleMenuToggle"
+          >
+            <span class="menu-toggle-box">
+              <span class="menu-toggle-inner">Menu</span>
+            </span>
+          </button>
+        </div>
+      </header>
+
+      <main class="main">
+        <div class="main__left">
+          <figure class="hero">
+            <img :src="hero.image" alt="Vinicius Menezes" loading="eager" />
+            <div class="hero-overlay">
+              <h1>Risadas, ódio e sangue</h1>
+              <hr class="divider" />
+              <p class="hero-subtitle">Bem-vindo, Bienvenido, Welcome</p>
+            </div>
+          </figure>
+        </div>
+
+        <div class="main__right">
+          <div class="feed">
+            <article
+              v-for="post in posts"
+              :key="post.title"
+              class="feed__item"
+            >
+              <header>
+                <h2>
+                  <a :href="post.url" target="_blank" rel="noopener">
+                    {{ post.title }}
+                  </a>
+                </h2>
+                <div class="post__meta">
+                  <time :datetime="post.datetime">{{ post.date }}</time>
+                </div>
+              </header>
+              <p>{{ post.excerpt }}</p>
+            </article>
+
+            <nav class="pagination desc">
+              <a class="btn" href="https://viniciusmenezes.com/page/2/" target="_blank" rel="noopener">
+                Previous
+              </a>
+            </nav>
+          </div>
+
+          <footer class="footer">
+            <div class="footer__social">
+              <a
+                v-for="social in socials"
+                :key="social.label"
+                :href="social.href"
+                :class="['social-icon', social.variant]"
+                target="_blank"
+                rel="noopener"
+                :aria-label="social.label"
+              >
+                <i :class="social.icon"></i>
+              </a>
+            </div>
+            <div class="footer__copyright">
+              Do primeiro e único... VGDM ®
+            </div>
+          </footer>
+        </div>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -82,9 +109,8 @@ export default {
   name: 'App',
   data() {
     return {
-      sidebarCollapsed: true,
+      isMenuOpen: false,
       hero: {
-        title: 'Bem-vindo, Bienvenido, Welcome',
         image: 'https://viniciusmenezes.com/media/website/IMG_20220624_123059.jpg'
       },
       navLinks: [
@@ -99,177 +125,408 @@ export default {
         {
           title: 'Como é bom voltar a sentir o coração bater',
           date: 'Domingo, 24 agosto 2025',
+          datetime: '2025-08-24T01:40',
           excerpt: 'É o casamento certo; O trabalho certo As amizades certas A moto certa. A vida vale a pena',
           url: 'https://viniciusmenezes.com/como-e-bom-voltar-a-sentir-o-coracao-bater/'
         },
         {
           title: 'Sentimentos',
           date: 'Quarta-feira, 4 junho 2025',
+          datetime: '2025-06-04T23:08',
           excerpt: '"Weltschmerz" (alemão para "dor do mundo") é um termo literário que descreve uma sensação de tristeza e cansaço diante da vida, causada pela percepção de que a…',
           url: 'https://viniciusmenezes.com/sentimentos/'
         },
         {
           title: 'Estatísticas "relevanciadas"',
           date: 'Sábado, 31 maio 2025',
+          datetime: '2025-05-31T19:35',
           excerpt: 'Elevadas a relevantes',
           url: 'https://viniciusmenezes.com/estatisticas-relevanciadas/'
         },
         {
           title: 'Linux, git e... subsurface?',
           date: 'Quarta-feira, 21 maio 2025',
+          datetime: '2025-05-21T14:43',
           excerpt: 'Engraçado as percepções sobre curva de adoção do git.',
           url: 'https://viniciusmenezes.com/linux-git-e-subsurface/'
         },
         {
           title: 'Desafio à Manu',
           date: 'Domingo, 4 maio 2025',
+          datetime: '2025-05-04T00:11',
           excerpt: 'Fui um provento estatístico, uma improbabilidade tornada carne, um instante onde o acaso vestiu identidade. Consumi uma vida anterior — feita de histórias, erros, legados e moléculas…',
           url: 'https://viniciusmenezes.com/desafio-a-manu/'
         },
         {
           title: 'Dominando o domínio: usando dig e nslookup para diagnosticar DNS com precisão',
           date: 'Quinta-feira, 17 abril 2025',
+          datetime: '2025-04-17T22:47',
           excerpt: 'Esse artigo faz parte de uma série de artigos que pretendo lançar no blog da empresa em que trabalho Na versão para pessoas não técnicas, explicamos que…',
           url: 'https://viniciusmenezes.com/dominando-o-dominio-usando-dig-e-nslookup-para-diagnosticar-dns-com-precisao/'
         },
         {
           title: 'Seu site aponta pro lugar certo? Descubra com nslookup',
           date: 'Quinta-feira, 17 abril 2025',
+          datetime: '2025-04-17T22:40',
           excerpt: 'Esse artigo faz parte de uma série de artigos que pretendo lançar no blog da empresa em que trabalho Você contratou um domínio, pagou a hospedagem, o…',
           url: 'https://viniciusmenezes.com/seu-site-aponta-pro-lugar-certo-descubra-com-nslookup/'
         }
       ],
       socials: [
-        { label: 'Twitter', href: 'https://twitter.com/v1n1c1u5gdm' },
-        { label: 'Instagram', href: 'https://www.instagram.com/vm3n3z35/' },
-        { label: 'LinkedIn', href: 'https://www.linkedin.com/in/menezesvinicius/' }
+        { label: 'Twitter', href: 'https://twitter.com/v1n1c1u5gdm', icon: 'fab fa-twitter', variant: 'twitter' },
+        { label: 'Instagram', href: 'https://www.instagram.com/vm3n3z35/', icon: 'fab fa-instagram', variant: 'instagram' },
+        { label: 'LinkedIn', href: 'https://www.linkedin.com/in/menezesvinicius/', icon: 'fab fa-linkedin', variant: 'linkedin' }
       ]
     }
   },
   methods: {
-    toggleSidebar() {
-      this.sidebarCollapsed = !this.sidebarCollapsed
+    handleMenuToggle() {
+      this.isMenuOpen = !this.isMenuOpen
+    },
+    handleMenuLinkClick() {
+      this.isMenuOpen = false
+    },
+    setBodyScrollState(active) {
+      if (typeof document === 'undefined') return
+      document.body.classList.toggle('no-scroll', active)
     }
   },
-  computed: {
-    heroPanelStyle() {
-      return {
-        backgroundImage: `url(${this.hero.image})`
-      }
+  watch: {
+    isMenuOpen(value) {
+      this.setBodyScrollState(value)
     }
+  },
+  mounted() {
+    this.setBodyScrollState(this.isMenuOpen)
+  },
+  beforeDestroy() {
+    this.setBodyScrollState(false)
   }
 }
 </script>
 
 <style scoped>
 .layout-wrapper {
-  background: #f5f5f5;
-  color: #111;
-  font-family: 'Inter', 'Helvetica', sans-serif;
+  position: relative;
+  min-height: 100vh;
+  background: var(--white);
+  color: var(--text-color);
 }
 
-.primary-area {
-  width: 70%;
+.menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: var(--side-nav-width);
+  height: 100vh;
+  background: var(--side-nav-bg);
+  padding: 2rem;
+  overflow-y: auto;
+  transform: translateX(var(--side-nav-width));
+  transition: transform 0.3s ease;
+  z-index: 2100;
+}
+
+.layout-wrapper.is-menu .menu {
+  transform: translateX(0);
+}
+
+.navbar__menu {
+  list-style: none;
+  margin: 0;
   padding: 0;
 }
 
-.hero-panel,
-.hero-panel-mobile {
-  width: 40%;
-  min-height: 100%;
-  background-size: cover;
-  background-position: center;
-  border-radius: 12px;
-  margin-right: 1.5rem;
+.navbar__menu li {
+  color: var(--side-nav-link);
+  font-family: var(--menu-font);
+  letter-spacing: 1px;
+  padding: 0.35rem 0;
+  text-transform: uppercase;
+}
+
+.navbar__menu li a {
+  color: inherit;
+}
+
+.navbar__menu li a:hover,
+.navbar__menu li.active a {
+  color: var(--side-nav-link-hover);
+  text-decoration: none;
+}
+
+.content {
+  min-height: 100vh;
+  background: var(--white);
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 4%;
   position: relative;
-  overflow: hidden;
+  z-index: 3;
+  border-bottom: 1px solid var(--hero-border-color);
+  color: var(--white);
 }
 
-.hero-panel::after,
-.hero-panel-mobile::after {
-  content: '';
+.logo {
+  color: inherit;
+  font-weight: var(--headings-weight);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.top__item {
+  display: flex;
+  align-items: center;
+}
+
+.top__item--right {
+  justify-content: flex-end;
+}
+
+.menu-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  position: relative;
+  z-index: 2200;
+}
+
+.menu-toggle-box {
+  width: 1.5rem;
+  height: 16px;
+  display: inline-block;
+  position: relative;
+}
+
+.menu-toggle-inner,
+.menu-toggle-inner::before,
+.menu-toggle-inner::after {
+  width: 1.5rem;
+  height: 2px;
+  background-color: var(--white);
   position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.65) 100%);
+  transition: transform 0.15s ease, opacity 0.15s ease, top 0.15s ease, bottom 0.15s ease;
 }
 
-.hero-panel-mobile {
+.menu-toggle-inner {
+  top: 50%;
+  transform: translateY(-50%);
+  text-indent: -9999px;
+}
+
+.menu-toggle-inner::before,
+.menu-toggle-inner::after {
+  content: '';
+  left: 0;
+}
+
+.menu-toggle-inner::before {
+  top: -6px;
+}
+
+.menu-toggle-inner::after {
+  bottom: -6px;
+}
+
+.menu-toggle.is-active .menu-toggle-inner {
+  transform: rotate(45deg);
+}
+
+.menu-toggle.is-active .menu-toggle-inner::before {
+  top: 0;
+  opacity: 0;
+}
+
+.menu-toggle.is-active .menu-toggle-inner::after {
+  bottom: 0;
+  transform: rotate(-90deg);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+}
+
+.main__left {
+  position: relative;
+}
+
+.hero {
+  height: 420px;
+  margin: 0;
+  position: relative;
+}
+
+.hero img {
   width: 100%;
-  min-height: 320px;
-  margin-right: 0;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .hero-overlay {
-  position: relative;
-  z-index: 1;
-  width: 100%;
+  position: absolute;
+  inset: 0;
+  background: var(--hero-overlay);
   padding: 2rem;
   display: flex;
-  align-items: flex-end;
-  height: 100%;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .hero-overlay h1 {
-  color: #111;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.7);
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  color: var(--white);
+  font-weight: var(--headings-weight);
+  margin-bottom: 0.5rem;
 }
 
-.post-section {
-  width: 60%;
+.divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  width: 100%;
+  margin: 1rem 0;
 }
 
-.nav-sidebar {
-  width: 30%;
-  max-width: 340px;
-  min-width: 240px;
-  padding: 2rem 1rem;
-  transition: transform 0.3s ease;
+.hero-subtitle {
+  color: var(--white);
+  font-size: 1rem;
+  margin: 0;
 }
 
-.nav-sidebar.collapsed {
-  transform: translateX(100%);
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  z-index: 1050;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+.main__right {
+  padding: 2rem 4%;
+  background: var(--white);
+  color: var(--text-color);
 }
 
-.nav-sidebar .nav-link {
-  color: #555;
+.feed__item {
+  padding-bottom: 3rem;
+  border-bottom: 1px solid var(--lighter);
 }
 
-.post-title a {
-  color: #111;
+.feed__item:last-of-type {
+  border-bottom: none;
+}
+
+.feed__item h2 a {
+  color: var(--headings-color);
+}
+
+.feed__item h2 a:hover {
+  color: var(--color);
   text-decoration: none;
 }
 
-.post-title a:hover {
-  text-decoration: underline;
+.post__meta {
+  color: var(--gray-1);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.social-links a {
-  margin: 0 0.5rem;
-  color: #555;
+.pagination {
+  margin-top: 2rem;
+}
+
+.btn {
+  border: 1px solid var(--gray-2);
+  color: var(--dark);
+  padding: 0.5rem 1.5rem;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  background: transparent;
+}
+
+.btn:hover {
+  border-color: var(--color);
+  color: var(--color);
   text-decoration: none;
 }
 
-@media (max-width: 992px) {
-  .primary-area {
-    width: 100%;
-    flex-direction: column;
+.footer {
+  border-top: 1px solid var(--lighter);
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.footer__social .social-icon {
+  margin-right: 0.75rem;
+  color: var(--gray-2);
+  font-size: 1rem;
+}
+
+.footer__social .social-icon:hover {
+  color: var(--color);
+}
+
+.footer__copyright {
+  color: var(--dark);
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+@media (max-width: 991.98px) {
+  .layout-wrapper.is-menu {
+    transform: none;
   }
 
-  .hero-panel {
-    display: none;
+  .menu {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 992px) {
+  .top {
+    position: fixed;
+    width: 60%;
+    right: 0;
+    padding: 1.5rem 6%;
+    background: var(--white);
+    border-bottom: 1px solid var(--hero-border-color);
+    color: var(--dark);
   }
 
-  .post-section {
-    width: 100%;
+  .logo {
+    color: var(--dark);
+  }
+
+  .menu-toggle-inner,
+  .menu-toggle-inner::before,
+  .menu-toggle-inner::after {
+    background-color: var(--black);
+  }
+
+  .main {
+    min-height: 100vh;
+  }
+
+  .main__left {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 40vw;
+    height: 100vh;
+  }
+
+  .hero {
+    height: 100%;
+  }
+
+  .main__right {
+    margin-left: 40vw;
+    padding: calc(var(--navbar-height) + 3.75rem) 6% 3rem;
+    min-height: 100vh;
   }
 }
 </style>
