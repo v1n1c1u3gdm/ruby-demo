@@ -14,6 +14,7 @@ RUN apt-get update -qq && \
       curl \
       git \
       libmariadb-dev \
+      libyaml-dev \
       pkg-config && \
     rm -rf /var/lib/apt/lists/*
 

@@ -43,6 +43,8 @@ docker compose run --rm api bin/rails db:prepare # cria o schema no MySQL
 docker compose up             # sobe API (porta 3000) + MySQL (porta 3306)
 ```
 
+A documentação da API está disponível em `http://localhost:3000/` assim que o container `api` estiver de pé (é redida pelo RSwag direto na raiz).
+
 A aplicação Rails conversa com o banco usando as credenciais fixas:
 
 - host `db`
@@ -58,3 +60,4 @@ Essas variáveis já vêm definidas no `docker-compose.yml`, mas podem ser sobre
 2. Instale dependências dentro de `api/`: `bundle install`.
 3. Exporte as variáveis de banco (ou use um `.env`) e rode `bin/rails db:prepare`.
 4. Inicie o servidor: `bin/rails server -b 0.0.0.0`.
+5. Abra `http://localhost:3000/` para visualizar o Swagger alimentado pelo RSwag.
