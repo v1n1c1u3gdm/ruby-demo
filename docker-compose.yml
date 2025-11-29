@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: rails-app
     working_dir: /app
     command: bundle exec puma -C config/puma.rb
     environment:
@@ -21,6 +22,18 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ui-app
+      args:
+        VUE_APP_API_BASE_URL: http://api:3000
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
 
   db:
     image: mysql:8.4
