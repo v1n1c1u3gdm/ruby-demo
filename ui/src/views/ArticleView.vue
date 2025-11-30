@@ -11,20 +11,28 @@
             :src="article.heroImage"
             :alt="article.heroAlt"
             loading="eager"
+            :srcset="article.heroSrcset || null"
+            :sizes="article.heroSizes || null"
           />
+          <div class="hero-overlay">
+            <h1 class="hero-title">{{ hero.title }}</h1>
+            <hr class="divider" />
+            <p class="hero-subtitle">{{ hero.subtitle }}</p>
+          </div>
           <span class="sr-only">{{ article.title }}</span>
         </figure>
         <header class="article-hero-header">
           <h1>{{ article.title }}</h1>
           <p>
             <time :datetime="article.datetime">{{ article.dateLabel }}</time>
+            by
             <template v-if="article.author?.name">
-              por
               <a
                 v-if="article.author.url"
                 :href="article.author.url"
                 rel="author noopener noreferrer"
                 target="_blank"
+                :title="article.author.name"
               >
                 {{ article.author.name }}
               </a>
@@ -85,6 +93,10 @@ export default {
   },
   data() {
     return {
+      hero: {
+        title: 'Risadas, ódio e sangue',
+        subtitle: 'Bem-vindo, Bienvenido, Welcome'
+      },
       article: null,
       isLoading: false,
       error: null
@@ -166,16 +178,19 @@ export default {
       const authorName = articleData.author?.name || 'Autor desconhecido'
       const datetime = articleData.created_at || articleData.updated_at || new Date().toISOString()
 
+      const heroImage = articleData.hero_image || articleData.author?.photo_url || this.getDefaultHeroImage()
       return {
         id: articleData.id,
         title: articleData.title,
-        heroImage: articleData.author?.photo_url || this.getDefaultHeroImage(),
-        heroAlt: `Foto de ${authorName}`,
+        heroImage,
+        heroSrcset: this.buildHeroSrcset(articleData, heroImage),
+        heroSizes: articleData.hero_sizes || '(min-width: 900px) 40vw, 100vw',
+        heroAlt: articleData.hero_alt || `Foto de ${authorName}`,
         dateLabel: articleData.published_label || this.formatDate(datetime),
         datetime,
         author: {
           name: authorName,
-          url: null
+          url: this.extractAuthorUrl(articleData)
         },
         content: this.extractContent(articleData.post_entry),
         url: articleData.url
@@ -207,6 +222,12 @@ export default {
     },
     getDefaultHeroImage() {
       return 'https://viniciusmenezes.com/media/website/IMG_20220624_123059.jpg'
+    },
+    buildHeroSrcset(articleData, fallback) {
+      return articleData.hero_srcset || articleData.author?.photo_srcset || fallback || null
+    },
+    extractAuthorUrl(articleData) {
+      return articleData.author?.url || articleData.author_url || null
     }
   }
 }
@@ -227,8 +248,8 @@ export default {
 
 .hero {
   margin: 0;
-  height: var(--hero-height);
   position: relative;
+  height: var(--hero-height);
 }
 
 .hero::after {
@@ -245,20 +266,58 @@ export default {
   display: block;
 }
 
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  z-index: 1;
+}
+
+.hero-title {
+  color: var(--white);
+  font-weight: var(--headings-weight);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.hero-subtitle {
+  color: var(--white);
+  margin: 0;
+}
+
 .article-hero-header {
+  padding: 1.5rem 4%;
   color: var(--hero-text-color);
-  padding: calc(var(--navbar-height) + 2rem) 4% 4%;
-  position: relative;
+}
+
+.article-hero-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 4vw, 3rem);
 }
 
 .article-hero-header p {
-  margin-top: 0.75rem;
-  color: var(--white);
+  margin: 0;
+  color: var(--gray-1);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
 }
 
 .article-hero-header a {
-  color: var(--white);
+  color: inherit;
   text-decoration: underline;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .post {
@@ -327,6 +386,15 @@ export default {
     top: calc(var(--navbar-height) + 3.75rem);
     left: 4%;
     right: 4%;
+    color: var(--white);
+  }
+
+  .article-hero-header p {
+    color: var(--white);
+  }
+
+  .article-hero-header a {
+    color: var(--white);
   }
 }
 </style>

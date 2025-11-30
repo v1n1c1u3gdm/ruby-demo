@@ -24,7 +24,11 @@
         </p>
 
         <template v-else>
-          <article v-for="post in posts" :key="post.slug" class="feed__item">
+          <article
+            v-for="post in paginatedPosts"
+            :key="post.slug"
+            class="feed__item"
+          >
             <header>
               <h2>
                 <router-link :to="{ name: 'article', params: { slug: post.slug } }">
@@ -38,15 +42,32 @@
             <p>{{ post.excerpt }}</p>
           </article>
 
-          <nav class="pagination desc" aria-label="Paginação">
-            <a
+          <nav
+            v-if="totalPages > 1"
+            class="pagination desc feed__pagination"
+            aria-label="Paginação de artigos"
+          >
+            <button
               class="btn"
-              href="https://viniciusmenezes.com/page/2/"
-              target="_blank"
-              rel="noopener"
+              type="button"
+              :disabled="currentPage === 1"
+              @click="goToPage(currentPage - 1)"
             >
-              Previous
-            </a>
+              Anterior
+            </button>
+
+            <span class="pagination__info">
+              Página {{ currentPage }} de {{ totalPages }}
+            </span>
+
+            <button
+              class="btn"
+              type="button"
+              :disabled="currentPage === totalPages"
+              @click="goToPage(currentPage + 1)"
+            >
+              Próxima
+            </button>
           </nav>
         </template>
       </div>
@@ -72,12 +93,25 @@ export default {
         subtitle: 'Bem-vindo, Bienvenido, Welcome'
       },
       posts: [],
+      currentPage: 1,
+      perPage: 10,
       isLoading: false,
       error: null
     }
   },
   created() {
     this.loadArticles()
+  },
+  computed: {
+    paginatedPosts() {
+      if (!this.posts.length) return []
+      const start = (this.currentPage - 1) * this.perPage
+      return this.posts.slice(start, start + this.perPage)
+    },
+    totalPages() {
+      if (!this.posts.length) return 1
+      return Math.max(1, Math.ceil(this.posts.length / this.perPage))
+    }
   },
   methods: {
     async loadArticles() {
@@ -87,6 +121,7 @@ export default {
       try {
         const articles = await fetchArticles()
         this.posts = articles.map(article => this.mapArticlePreview(article))
+        this.currentPage = 1
       } catch (err) {
         console.error(err)
         this.error = 'Não foi possível carregar os artigos. Tente novamente.'
@@ -130,6 +165,10 @@ export default {
         console.warn('Erro ao formatar data', err)
         return value
       }
+    },
+    goToPage(page) {
+      const nextPage = Math.min(Math.max(page, 1), this.totalPages)
+      this.currentPage = nextPage
     },
     ensureSlug(article) {
       if (article?.slug) return article.slug
@@ -188,6 +227,10 @@ export default {
   margin: 0;
 }
 
+.feed {
+  width: 100%;
+}
+
 .feed__item {
   padding-bottom: 3rem;
   border-bottom: 1px solid var(--lighter);
@@ -217,6 +260,21 @@ export default {
   margin-top: 2rem;
 }
 
+.feed__pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.pagination__info {
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray-1);
+}
+
 .feed__state {
   padding: 2rem 0;
   text-align: center;
@@ -235,6 +293,11 @@ export default {
   text-transform: uppercase;
   font-size: 0.75rem;
   background: transparent;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn:hover {

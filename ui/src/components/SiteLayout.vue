@@ -290,7 +290,8 @@ export default {
 }
 
 .main__right-inner {
-  max-width: var(--entry-width);
+  width: 100%;
+  max-width: none;
 }
 
 .footer {
