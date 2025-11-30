@@ -43,14 +43,23 @@
 
       <article v-else class="post">
         <div class="post__entry">
-          <p
-            v-for="(paragraph, index) in bioParagraphs"
-            :key="`bio-${index}`"
-            v-html="paragraph"
-          />
-          <p v-if="!bioParagraphs.length" class="post__placeholder">
-            Nenhuma biografia cadastrada para este autor.
-          </p>
+          <figure class="about-photo">
+            <img
+              :src="professionalPhoto"
+              alt="Retrato profissional de Vinicius Menezes"
+              loading="lazy"
+            />
+          </figure>
+          <div class="text-column">
+            <p
+              v-for="(paragraph, index) in bioParagraphs"
+              :key="`bio-${index}`"
+              v-html="paragraph"
+            />
+            <p v-if="!bioParagraphs.length" class="post__placeholder">
+              Nenhuma biografia cadastrada para este autor.
+            </p>
+          </div>
         </div>
 
         <section class="post__meta">
@@ -68,6 +77,7 @@
 import SiteLayout from '@/components/SiteLayout.vue'
 import { fetchAuthors, fetchArticlesCountByAuthor } from '@/services/authorsService'
 import defaultHeroImage from '@/assets/hero.jpg'
+import professionalPhoto from '@/assets/eu-profissional.png'
 
 export default {
   name: 'AboutView',
@@ -80,6 +90,7 @@ export default {
         title: 'Risadas, ódio e sangue',
         subtitle: 'Bem-vindo, Bienvenido, Welcome'
       },
+      professionalPhoto,
       author: null,
       isLoading: false,
       error: null
@@ -293,9 +304,38 @@ export default {
   color: var(--text-color);
 }
 
+.post__entry {
+  margin: 0;
+}
+
+.text-column {
+  overflow: hidden;
+}
+
 .post__entry p {
   margin-top: 1.5rem;
   font-size: 1.05rem;
+}
+
+.post__entry p:first-of-type {
+  margin-top: 0;
+}
+
+.about-photo {
+  float: left;
+  margin: 0 1.5rem 1rem 0;
+  width: min(200px, 40vw);
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--lighter);
+}
+
+.about-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .post__entry p:first-of-type {
