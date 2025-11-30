@@ -1,37 +1,58 @@
 <template>
   <SiteLayout>
     <template #main-left>
-      <figure class="hero">
-        <img
-          :src="article.heroImage"
-          :alt="article.heroAlt"
-          loading="eager"
-        />
-        <span class="sr-only">{{ article.title }}</span>
-      </figure>
-      <header class="article-hero-header">
-        <h1>{{ article.title }}</h1>
-        <p>
-          <time :datetime="article.datetime">{{ article.dateLabel }}</time>
-          by
-          <a :href="article.author.url" rel="author" target="_blank">
-            {{ article.author.name }}
-          </a>
-        </p>
-      </header>
+      <div v-if="isLoading" class="state state--info">Carregando artigo...</div>
+      <div v-else-if="error" class="state state--error">{{ error }}</div>
+      <div v-else-if="!article" class="state">Selecione um artigo para visualizar.</div>
+
+      <template v-else>
+        <figure class="hero">
+          <img
+            :src="article.heroImage"
+            :alt="article.heroAlt"
+            loading="eager"
+          />
+          <span class="sr-only">{{ article.title }}</span>
+        </figure>
+        <header class="article-hero-header">
+          <h1>{{ article.title }}</h1>
+          <p>
+            <time :datetime="article.datetime">{{ article.dateLabel }}</time>
+            <template v-if="article.author?.name">
+              por
+              <a
+                v-if="article.author.url"
+                :href="article.author.url"
+                rel="author noopener noreferrer"
+                target="_blank"
+              >
+                {{ article.author.name }}
+              </a>
+              <span v-else>{{ article.author.name }}</span>
+            </template>
+          </p>
+        </header>
+      </template>
     </template>
 
     <template #main-right>
-      <article class="post">
+      <div v-if="isLoading" class="state state--info">Carregando artigo...</div>
+      <div v-else-if="error" class="state state--error">{{ error }}</div>
+      <div v-else-if="!article" class="state">Selecione um artigo para visualizar.</div>
+
+      <article v-else class="post">
         <div class="post__entry">
           <p
             v-for="(paragraph, index) in article.content"
             :key="`paragraph-${index}`"
             v-html="paragraph"
           />
+          <p v-if="!article.content.length" class="post__placeholder">
+            Este artigo ainda não possui conteúdo disponível para exibição.
+          </p>
         </div>
 
-        <footer>
+        <footer v-if="shareLinks.length">
           <div class="post__tag-share">
             <div class="post__share" aria-label="Compartilhar artigo">
               <a
@@ -55,6 +76,7 @@
 
 <script>
 import SiteLayout from '@/components/SiteLayout.vue'
+import { fetchArticles, fetchArticleBySlug } from '@/services/articlesService'
 
 export default {
   name: 'ArticleView',
@@ -63,40 +85,128 @@ export default {
   },
   data() {
     return {
-      article: {
-        title: 'Como é bom voltar a sentir o coração bater',
-        heroImage: 'https://viniciusmenezes.com/media/website/IMG_20220624_123059.jpg',
-        heroAlt: 'Foto do autor sorrindo de óculos',
-        dateLabel: 'Domingo, 24 agosto 2025',
-        datetime: '2025-08-24T01:40',
-        author: {
-          name: 'Vinicius G. D. Menezes',
-          url: 'https://viniciusmenezes.com/authors/vinicius-menezes/'
-        },
-        content: [
-          'É o casamento certo;',
-          'O trabalho certo',
-          'As amizades certas',
-          'A moto certa.<br><br>A vida vale a pena'
-        ]
-      },
-      shareLinks: [
+      article: null,
+      isLoading: false,
+      error: null
+    }
+  },
+  computed: {
+    shareLinks() {
+      if (!this.article || !this.article.url) {
+        return []
+      }
+
+      const encodedUrl = encodeURIComponent(this.article.url)
+      const encodedTitle = encodeURIComponent(this.article.title || '')
+
+      return [
         {
           label: 'Compartilhar no Twitter',
           icon: 'fab fa-twitter',
-          href: 'https://twitter.com/share?url=https%3A%2F%2Fviniciusmenezes.com%2Fcomo-e-bom-voltar-a-sentir-o-coracao-bater%2F&via=v1n1c1u5gdm&text=Como%20%C3%A9%20bom%20voltar%20a%20sentir%20o%20cora%C3%A7%C3%A3o%20bater'
+          href: `https://twitter.com/share?url=${encodedUrl}&text=${encodedTitle}`
         },
         {
           label: 'Compartilhar no LinkedIn',
           icon: 'fab fa-linkedin',
-          href: 'https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fviniciusmenezes.com%2Fcomo-e-bom-voltar-a-sentir-o-coracao-bater%2F'
+          href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`
         },
         {
           label: 'Compartilhar no WhatsApp',
           icon: 'fab fa-whatsapp',
-          href: 'https://api.whatsapp.com/send?text=Como%20%C3%A9%20bom%20voltar%20a%20sentir%20o%20cora%C3%A7%C3%A3o%20bater%20https%3A%2F%2Fviniciusmenezes.com%2Fcomo-e-bom-voltar-a-sentir-o-coracao-bater%2F'
+          href: `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`
         }
       ]
+    }
+  },
+  created() {
+    this.loadArticle()
+  },
+  watch: {
+    '$route.params.slug'() {
+      this.loadArticle()
+    }
+  },
+  methods: {
+    async loadArticle() {
+      this.isLoading = true
+      this.error = null
+
+      try {
+        const slug = this.$route.params.slug
+        const articleData = await this.resolveArticleData(slug)
+
+        if (!articleData) {
+          this.article = null
+          this.error = slug ? 'Artigo não encontrado.' : 'Nenhum artigo disponível.'
+          return
+        }
+
+        this.article = this.normalizeArticle(articleData)
+      } catch (err) {
+        console.error(err)
+        this.error = 'Não foi possível carregar o artigo. Tente novamente.'
+        this.article = null
+      } finally {
+        this.isLoading = false
+      }
+    },
+    async resolveArticleData(slug) {
+      if (slug) {
+        return fetchArticleBySlug(slug)
+      }
+
+      const articles = await fetchArticles()
+      return articles[0]
+    },
+    normalizeArticle(articleData) {
+      if (!articleData) {
+        return null
+      }
+
+      const authorName = articleData.author?.name || 'Autor desconhecido'
+      const datetime = articleData.created_at || articleData.updated_at || new Date().toISOString()
+
+      return {
+        id: articleData.id,
+        title: articleData.title,
+        heroImage: articleData.author?.photo_url || this.getDefaultHeroImage(),
+        heroAlt: `Foto de ${authorName}`,
+        dateLabel: articleData.published_label || this.formatDate(datetime),
+        datetime,
+        author: {
+          name: authorName,
+          url: null
+        },
+        content: this.extractContent(articleData.post_entry),
+        url: articleData.url
+      }
+    },
+    extractContent(entry) {
+      if (!entry) return []
+
+      return entry
+        .split(/\n{2,}/)
+        .map(paragraph => paragraph.replace(/\n/g, '<br />').trim())
+        .filter(Boolean)
+    },
+    formatDate(value) {
+      if (!value) return ''
+
+      try {
+        const date = new Date(value)
+        return new Intl.DateTimeFormat('pt-BR', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        }).format(date)
+      } catch (err) {
+        console.warn('Erro ao formatar data', err)
+        return value
+      }
+    },
+    getDefaultHeroImage() {
+      return 'https://viniciusmenezes.com/media/website/IMG_20220624_123059.jpg'
     }
   }
 }
@@ -186,6 +296,25 @@ export default {
 
 .share-link i {
   pointer-events: none;
+}
+
+.post__placeholder {
+  color: var(--gray-1);
+  font-style: italic;
+}
+
+.state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-color);
+}
+
+.state--info {
+  color: var(--gray-1);
+}
+
+.state--error {
+  color: #b00020;
 }
 
 @media (min-width: 992px) {

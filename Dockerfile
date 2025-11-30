@@ -30,8 +30,8 @@ WORKDIR /app
 COPY ui/package*.json ./
 RUN npm install
 COPY ui/ .
-ARG VUE_APP_API_BASE_URL=http://localhost:3000
-ENV VUE_APP_API_BASE_URL=${VUE_APP_API_BASE_URL}
+ARG VUE_APP_ARTICLES_URL=http://localhost:3000/articles
+ENV VUE_APP_ARTICLES_URL=${VUE_APP_ARTICLES_URL}
 RUN npm run build
 
 # -------- Vue runtime stage --------

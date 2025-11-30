@@ -13,29 +13,42 @@
 
     <template #main-right>
       <div class="feed">
-        <article
-          v-for="post in posts"
-          :key="post.title"
-          class="feed__item"
-        >
-          <header>
-            <h2>
-              <a :href="post.url" target="_blank" rel="noopener">
-                {{ post.title }}
-              </a>
-            </h2>
-            <div class="post__meta">
-              <time :datetime="post.datetime">{{ post.date }}</time>
-            </div>
-          </header>
-          <p>{{ post.excerpt }}</p>
-        </article>
+        <p v-if="isLoading" class="feed__state">Carregando artigos...</p>
 
-        <nav class="pagination desc" aria-label="Paginação">
-          <a class="btn" href="https://viniciusmenezes.com/page/2/" target="_blank" rel="noopener">
-            Previous
-          </a>
-        </nav>
+        <p v-else-if="error" class="feed__state feed__state--error">
+          {{ error }}
+        </p>
+
+        <p v-else-if="!posts.length" class="feed__state">
+          Nenhum artigo encontrado.
+        </p>
+
+        <template v-else>
+          <article v-for="post in posts" :key="post.slug" class="feed__item">
+            <header>
+              <h2>
+                <router-link :to="{ name: 'article', params: { slug: post.slug } }">
+                  {{ post.title }}
+                </router-link>
+              </h2>
+              <div class="post__meta">
+                <time :datetime="post.datetime">{{ post.date }}</time>
+              </div>
+            </header>
+            <p>{{ post.excerpt }}</p>
+          </article>
+
+          <nav class="pagination desc" aria-label="Paginação">
+            <a
+              class="btn"
+              href="https://viniciusmenezes.com/page/2/"
+              target="_blank"
+              rel="noopener"
+            >
+              Previous
+            </a>
+          </nav>
+        </template>
       </div>
     </template>
   </SiteLayout>
@@ -43,6 +56,7 @@
 
 <script>
 import SiteLayout from '@/components/SiteLayout.vue'
+import { fetchArticles } from '@/services/articlesService'
 
 export default {
   name: 'HomeView',
@@ -57,57 +71,76 @@ export default {
         title: 'Risadas, ódio e sangue',
         subtitle: 'Bem-vindo, Bienvenido, Welcome'
       },
-      posts: [
-        {
-          title: 'Como é bom voltar a sentir o coração bater',
-          date: 'Domingo, 24 agosto 2025',
-          datetime: '2025-08-24T01:40',
-          excerpt: 'É o casamento certo; O trabalho certo As amizades certas A moto certa. A vida vale a pena',
-          url: 'https://viniciusmenezes.com/como-e-bom-voltar-a-sentir-o-coracao-bater/'
-        },
-        {
-          title: 'Sentimentos',
-          date: 'Quarta-feira, 4 junho 2025',
-          datetime: '2025-06-04T23:08',
-          excerpt: '"Weltschmerz" (alemão para "dor do mundo") descreve a percepção de desalento diante da vida.',
-          url: 'https://viniciusmenezes.com/sentimentos/'
-        },
-        {
-          title: 'Estatísticas "relevanciadas"',
-          date: 'Sábado, 31 maio 2025',
-          datetime: '2025-05-31T19:35',
-          excerpt: 'Elevadas a relevantes.',
-          url: 'https://viniciusmenezes.com/estatisticas-relevanciadas/'
-        },
-        {
-          title: 'Linux, git e... subsurface?',
-          date: 'Quarta-feira, 21 maio 2025',
-          datetime: '2025-05-21T14:43',
-          excerpt: 'Percepções sobre curva de adoção do git.',
-          url: 'https://viniciusmenezes.com/linux-git-e-subsurface/'
-        },
-        {
-          title: 'Desafio à Manu',
-          date: 'Domingo, 4 maio 2025',
-          datetime: '2025-05-04T00:11',
-          excerpt: 'Uma improbabilidade tornada carne, consumindo uma vida anterior de histórias.',
-          url: 'https://viniciusmenezes.com/desafio-a-manu/'
-        },
-        {
-          title: 'Dominando o domínio: usando dig e nslookup para diagnosticar DNS com precisão',
-          date: 'Quinta-feira, 17 abril 2025',
-          datetime: '2025-04-17T22:47',
-          excerpt: 'Série sobre DNS com diagnósticos práticos usando dig e nslookup.',
-          url: 'https://viniciusmenezes.com/dominando-o-dominio-usando-dig-e-nslookup-para-diagnosticar-dns-com-precisao/'
-        },
-        {
-          title: 'Seu site aponta pro lugar certo? Descubra com nslookup',
-          date: 'Quinta-feira, 17 abril 2025',
-          datetime: '2025-04-17T22:40',
-          excerpt: 'Checagem rápida para validar se o domínio aponta para o destino correto.',
-          url: 'https://viniciusmenezes.com/seu-site-aponta-pro-lugar-certo-descubra-com-nslookup/'
-        }
-      ]
+      posts: [],
+      isLoading: false,
+      error: null
+    }
+  },
+  created() {
+    this.loadArticles()
+  },
+  methods: {
+    async loadArticles() {
+      this.isLoading = true
+      this.error = null
+
+      try {
+        const articles = await fetchArticles()
+        this.posts = articles.map(article => this.mapArticlePreview(article))
+      } catch (err) {
+        console.error(err)
+        this.error = 'Não foi possível carregar os artigos. Tente novamente.'
+      } finally {
+        this.isLoading = false
+      }
+    },
+    mapArticlePreview(article) {
+      if (!article) return {}
+
+      const datetime = article.created_at || article.updated_at || new Date().toISOString()
+      return {
+        id: article.id,
+        slug: this.ensureSlug(article),
+        title: article.title,
+        date: article.published_label || this.formatDate(datetime),
+        datetime,
+        excerpt: this.truncateText(article.post_entry),
+        url: article.url
+      }
+    },
+    truncateText(text, limit = 200) {
+      if (!text) return ''
+      const normalized = text.trim()
+      if (normalized.length <= limit) {
+        return normalized
+      }
+      return `${normalized.slice(0, limit).trim()}…`
+    },
+    formatDate(value) {
+      if (!value) return ''
+      try {
+        const date = new Date(value)
+        return new Intl.DateTimeFormat('pt-BR', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        }).format(date)
+      } catch (err) {
+        console.warn('Erro ao formatar data', err)
+        return value
+      }
+    },
+    ensureSlug(article) {
+      if (article?.slug) return article.slug
+      if (!article?.url) return ''
+      try {
+        const url = new URL(article.url)
+        const segments = url.pathname.split('/').filter(Boolean)
+        return segments.pop() || ''
+      } catch (_) {
+        return ''
+      }
     }
   }
 }
@@ -182,6 +215,17 @@ export default {
 
 .pagination {
   margin-top: 2rem;
+}
+
+.feed__state {
+  padding: 2rem 0;
+  text-align: center;
+  color: var(--gray-1);
+  font-size: 0.95rem;
+}
+
+.feed__state--error {
+  color: #b00020;
 }
 
 .btn {
