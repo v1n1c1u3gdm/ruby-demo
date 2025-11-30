@@ -28,6 +28,9 @@ development:
 test:
   <<: *default
   database: ruby_demo_test
+  host: <%= ENV.fetch("DB_HOST_TEST", "127.0.0.1") %>
+  username: <%= ENV.fetch("DB_USERNAME_TEST", ENV.fetch("DB_USERNAME", "ruby-demo")) %>
+  password: <%= ENV.fetch("DB_PASSWORD_TEST", ENV.fetch("DB_PASSWORD", "2u8y-c0d3")) %>
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is

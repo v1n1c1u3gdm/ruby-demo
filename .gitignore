@@ -12,6 +12,7 @@
 /api/.byebug_history
 /api/node_modules
 /api/.DS_Store
+/api/coverage/
 
 # Environment files
 .env
