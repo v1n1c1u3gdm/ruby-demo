@@ -58,24 +58,6 @@
             Este artigo ainda não possui conteúdo disponível para exibição.
           </p>
         </div>
-
-        <footer v-if="shareLinks.length">
-          <div class="post__tag-share">
-            <div class="post__share" aria-label="Compartilhar artigo">
-              <a
-                v-for="share in shareLinks"
-                :key="share.label"
-                :href="share.href"
-                class="share-link"
-                target="_blank"
-                rel="nofollow noopener noreferrer"
-                :aria-label="share.label"
-              >
-                <i :class="share.icon"></i>
-              </a>
-            </div>
-          </div>
-        </footer>
       </article>
     </template>
   </SiteLayout>
