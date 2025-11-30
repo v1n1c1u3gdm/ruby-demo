@@ -2,8 +2,8 @@ class AuthorsController < ApplicationController
   before_action :set_author, only: %i[show update destroy]
 
   def index
-    authors = Author.includes(:socials, :articles).all
-    render json: authors.as_json(include: [:socials, :articles])
+    authors = Author.includes(:socials).all
+    render json: authors.as_json(include: :socials)
   end
 
   def show
