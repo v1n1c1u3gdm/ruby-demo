@@ -21,9 +21,7 @@
 
     <div class="content">
       <header class="top">
-        <div class="top__item">
-          <a class="logo" href="https://viniciusmenezes.com/" title="Home">Risadas, ódio e sangue</a>
-        </div>
+        <div class="top__item"></div>
         <div class="top__item top__item--right">
           <button
             type="button"
@@ -80,11 +78,11 @@ export default {
       isMenuOpen: false,
       navLinks: [
         { label: 'inicio', href: 'https://viniciusmenezes.com/', active: true },
-        { label: 'profissional', href: 'https://www.linkedin.com/in/menezesvinicius/', external: true },
-        { label: 'sobre', href: 'https://viniciusmenezes.com/authors/vinicius-menezes/' },
-        { label: 'postagens por tipo', href: 'https://viniciusmenezes.com/tags/' },
         { label: 'drive', href: 'https://viniciusmenezes.com/share/' },
-        { label: 'estudos', href: 'https://viniciusmenezes.com/bookstack', external: true }
+        { label: 'estudos', href: 'https://viniciusmenezes.com/bookstack', external: true },
+        { label: 'postagens por tipo', href: 'https://viniciusmenezes.com/tags/' },
+        { label: 'profissional', href: 'https://www.linkedin.com/in/menezesvinicius/', external: true },
+        { label: 'sobre', href: 'https://viniciusmenezes.com/authors/vinicius-menezes/' }
       ],
       socials: [
         { label: 'Twitter', href: 'https://twitter.com/v1n1c1u5gdm', icon: 'fab fa-twitter', variant: 'twitter' },

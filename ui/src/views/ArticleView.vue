@@ -15,7 +15,11 @@
             :sizes="article.heroSizes || null"
           />
           <div class="hero-overlay">
-            <h1 class="hero-title">{{ hero.title }}</h1>
+            <h2 class="hero-title">
+              <router-link to="/">
+                {{ hero.title }}
+              </router-link>
+            </h2>
             <hr class="divider" />
           </div>
           <span class="sr-only">{{ article.title }}</span>
@@ -66,6 +70,7 @@
 <script>
 import SiteLayout from '@/components/SiteLayout.vue'
 import { fetchArticles, fetchArticleBySlug } from '@/services/articlesService'
+import defaultHeroImage from '@/assets/hero.jpg'
 
 export default {
   name: 'ArticleView',
@@ -202,7 +207,7 @@ export default {
       }
     },
     getDefaultHeroImage() {
-      return 'https://viniciusmenezes.com/media/website/IMG_20220624_123059.jpg'
+      return defaultHeroImage
     },
     buildHeroSrcset(articleData, fallback) {
       return articleData.hero_srcset || articleData.author?.photo_srcset || fallback || null
@@ -260,9 +265,14 @@ export default {
 .hero-title {
   color: var(--white);
   font-weight: var(--headings-weight);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  text-transform: none;
+  letter-spacing: 0;
   margin: 0;
+}
+
+.hero-title a {
+  color: inherit;
+  text-decoration: none;
 }
 
 .divider {
@@ -284,6 +294,7 @@ export default {
 .article-hero-header h1 {
   margin: 0 0 0.5rem;
   font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--white);
 }
 
 .article-hero-header p {

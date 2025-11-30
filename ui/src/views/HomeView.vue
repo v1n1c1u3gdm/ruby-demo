@@ -77,6 +77,7 @@
 
 <script>
 import SiteLayout from '@/components/SiteLayout.vue'
+import heroImage from '@/assets/hero.jpg'
 import { fetchArticles } from '@/services/articlesService'
 
 export default {
@@ -87,7 +88,7 @@ export default {
   data() {
     return {
       hero: {
-        image: 'https://viniciusmenezes.com/media/website/IMG_20220624_123059.jpg',
+        image: heroImage,
         alt: 'Vinicius Menezes sorrindo e ouvindo música',
         title: 'Risadas, ódio e sangue',
         subtitle: 'Bem-vindo, Bienvenido, Welcome'
