@@ -82,7 +82,7 @@ export default {
     return {
       isMenuOpen: false,
       navLinks: [
-        { label: 'inicio', href: 'https://viniciusmenezes.com/', active: true },
+        { label: 'inicio', routeName: 'home' },
         { label: 'drive', href: 'https://viniciusmenezes.com/share/' },
         { label: 'estudos', href: 'https://viniciusmenezes.com/bookstack', external: true },
         { label: 'postagens por tipo', href: 'https://viniciusmenezes.com/tags/' },

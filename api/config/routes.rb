@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     get :count_by_author, on: :collection
   end
 
+  get "/tech", to: "tech#show"
   get "/liveness", to: "health#liveness"
   get "/metrics", to: "metrics#show"
   get "up" => "rails/health#show", as: :rails_health_check
