@@ -78,7 +78,7 @@
 <script>
 import SiteLayout from '@/components/SiteLayout.vue'
 import heroImage from '@/assets/hero.jpg'
-import { fetchArticles } from '@/services/articlesService'
+import { fetchArticles, buildArticleUrl } from '@/services/articlesService'
 
 export default {
   name: 'HomeView',
@@ -134,14 +134,15 @@ export default {
       if (!article) return {}
 
       const datetime = article.created_at || article.updated_at || new Date().toISOString()
+      const slug = this.ensureSlug(article)
       return {
         id: article.id,
-        slug: this.ensureSlug(article),
+        slug,
         title: article.title,
         date: article.published_label || this.formatDate(datetime),
         datetime,
         excerpt: this.truncateText(article.post_entry),
-        url: article.url
+        url: buildArticleUrl(slug)
       }
     },
     truncateText(text, limit = 200) {
@@ -172,15 +173,7 @@ export default {
       this.currentPage = nextPage
     },
     ensureSlug(article) {
-      if (article?.slug) return article.slug
-      if (!article?.url) return ''
-      try {
-        const url = new URL(article.url)
-        const segments = url.pathname.split('/').filter(Boolean)
-        return segments.pop() || ''
-      } catch (_) {
-        return ''
-      }
+      return article?.slug || ''
     }
   }
 }

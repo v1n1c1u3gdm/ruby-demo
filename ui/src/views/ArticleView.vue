@@ -69,7 +69,7 @@
 
 <script>
 import SiteLayout from '@/components/SiteLayout.vue'
-import { fetchArticles, fetchArticleBySlug } from '@/services/articlesService'
+import { fetchArticles, fetchArticleBySlug, buildArticleUrl } from '@/services/articlesService'
 import defaultHeroImage from '@/assets/hero.jpg'
 
 export default {
@@ -165,6 +165,7 @@ export default {
       const datetime = articleData.created_at || articleData.updated_at || new Date().toISOString()
 
       const heroImage = articleData.hero_image || articleData.author?.photo_url || this.getDefaultHeroImage()
+      const slug = articleData.slug || null
       return {
         id: articleData.id,
         title: articleData.title,
@@ -179,7 +180,7 @@ export default {
           url: this.extractAuthorUrl(articleData)
         },
         content: this.extractContent(articleData.post_entry),
-        url: articleData.url
+        url: buildArticleUrl(slug)
       }
     },
     extractContent(entry) {

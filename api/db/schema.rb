@@ -10,10 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_29_233801) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_30_235900) do
   create_table "articles", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title", null: false
-    t.string "url", null: false
     t.string "slug", null: false
     t.string "published_label", null: false
     t.text "post_entry", null: false
@@ -23,7 +22,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_29_233801) do
     t.datetime "updated_at", null: false
     t.index ["author_id"], name: "index_articles_on_author_id"
     t.index ["slug"], name: "index_articles_on_slug", unique: true
-    t.index ["url"], name: "index_articles_on_url", unique: true
   end
 
   create_table "authors", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -31,6 +29,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_29_233801) do
     t.date "birthdate", null: false
     t.string "photo_url", null: false
     t.text "public_key", null: false
+    t.text "bio", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_authors_on_name", unique: true

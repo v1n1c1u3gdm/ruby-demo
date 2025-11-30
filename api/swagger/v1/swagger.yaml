@@ -350,9 +350,6 @@ components:
           type: string
         slug:
           type: string
-        url:
-          type: string
-          format: uri
         published_label:
           type: string
         post_entry:
@@ -379,7 +376,6 @@ components:
           required:
             - title
             - slug
-            - url
             - published_label
             - post_entry
             - author_id
@@ -388,9 +384,6 @@ components:
               type: string
             slug:
               type: string
-            url:
-              type: string
-              format: uri
             published_label:
               type: string
             post_entry:

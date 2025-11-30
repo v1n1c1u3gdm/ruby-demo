@@ -3,8 +3,8 @@ class Article < ApplicationRecord
 
   attribute :tags, default: []
 
-  validates :title, :url, :slug, :published_label, :post_entry, presence: true
-  validates :url, :slug, uniqueness: true
+  validates :title, :slug, :published_label, :post_entry, presence: true
+  validates :slug, uniqueness: true
   validate :tags_must_be_array
 
   private

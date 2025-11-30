@@ -2,12 +2,12 @@ class ArticlesController < ApplicationController
   before_action :set_article, only: %i[show update destroy]
 
   def index
-    articles = Article.includes(:author).all
-    render json: articles.as_json(include: :author)
+    articles = Article.all
+    render json: articles
   end
 
   def show
-    render json: @article.as_json(include: :author)
+    render json: @article
   end
 
   def create
@@ -39,7 +39,7 @@ class ArticlesController < ApplicationController
   end
 
   def article_params
-    params.require(:article).permit(:title, :url, :slug, :published_label, :post_entry, :author_id, tags: [])
+    params.require(:article).permit(:title, :slug, :published_label, :post_entry, :author_id, tags: [])
   end
 end
 

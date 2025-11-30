@@ -1,11 +1,21 @@
 const DEFAULT_ARTICLES_URL = 'http://localhost:3000/articles'
+const DEFAULT_ARTICLE_PUBLIC_BASE_URL = 'https://viniciusmenezes.com'
+
 const ARTICLES_ENDPOINT = normalizeArticlesUrl(process.env.VUE_APP_ARTICLES_URL || DEFAULT_ARTICLES_URL)
+const ARTICLE_PUBLIC_BASE_URL = normalizePublicBaseUrl(
+  process.env.VUE_APP_ARTICLE_PUBLIC_BASE_URL || DEFAULT_ARTICLE_PUBLIC_BASE_URL
+)
 
 let articlesCache = null
 let inflightRequest = null
 
 function normalizeArticlesUrl(url) {
   if (!url) return DEFAULT_ARTICLES_URL
+  return url.replace(/\/+$/, '')
+}
+
+function normalizePublicBaseUrl(url) {
+  if (!url) return DEFAULT_ARTICLE_PUBLIC_BASE_URL
   return url.replace(/\/+$/, '')
 }
 
@@ -67,5 +77,12 @@ export async function fetchArticleBySlug(slug) {
 export function clearArticlesCache() {
   articlesCache = null
   inflightRequest = null
+}
+
+export function buildArticleUrl(slug) {
+  if (!slug) return null
+  const sanitizedSlug = String(slug).trim().replace(/^\/+|\/+$/g, '')
+  if (!sanitizedSlug) return null
+  return `${ARTICLE_PUBLIC_BASE_URL}/${sanitizedSlug}/`
 }
 
