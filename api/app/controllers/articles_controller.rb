@@ -32,6 +32,24 @@ class ArticlesController < ApplicationController
     head :no_content
   end
 
+  def count_by_author
+    counts = Author
+               .left_outer_joins(:articles)
+               .group('authors.id')
+               .order('authors.name ASC')
+               .select('authors.id, authors.name, COUNT(articles.id) AS articles_count')
+
+    payload = counts.map do |author|
+      {
+        author_id: author.id,
+        author_name: author.name,
+        articles_count: author.attributes['articles_count'].to_i
+      }
+    end
+
+    render json: payload
+  end
+
   private
 
   def set_article

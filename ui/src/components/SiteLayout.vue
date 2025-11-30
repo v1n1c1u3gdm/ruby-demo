@@ -5,12 +5,22 @@
         <li
           v-for="link in navLinks"
           :key="link.label"
-          :class="{ active: link.active }"
+          :class="{ active: isLinkActive(link) }"
         >
+          <router-link
+            v-if="link.routeName"
+            :to="{ name: link.routeName }"
+            class="navbar__link"
+            @click.native="handleMenuLinkClick"
+          >
+            {{ link.label }}
+          </router-link>
+
           <a
+            v-else
             :href="link.href"
             :target="link.external ? '_blank' : '_self'"
-            rel="noopener"
+            :rel="link.external ? 'noopener noreferrer' : 'noopener'"
             @click="handleMenuLinkClick"
           >
             {{ link.label }}
@@ -50,17 +60,7 @@
             <footer class="footer">
               <div class="footer__copyright">Do primeiro e único... VGDM ®</div>
               <div class="footer__social">
-                <a
-                  v-for="social in socials"
-                  :key="social.label"
-                  :href="social.href"
-                  :class="['social-icon', social.variant]"
-                  target="_blank"
-                  rel="noopener"
-                  :aria-label="social.label"
-                >
-                  <i :class="social.icon"></i>
-                </a>
+                <SocialsView />
               </div>
             </footer>
           </div>
@@ -71,8 +71,13 @@
 </template>
 
 <script>
+import SocialsView from '@/views/SocialsView.vue'
+
 export default {
   name: 'SiteLayout',
+  components: {
+    SocialsView
+  },
   data() {
     return {
       isMenuOpen: false,
@@ -82,12 +87,7 @@ export default {
         { label: 'estudos', href: 'https://viniciusmenezes.com/bookstack', external: true },
         { label: 'postagens por tipo', href: 'https://viniciusmenezes.com/tags/' },
         { label: 'profissional', href: 'https://www.linkedin.com/in/menezesvinicius/', external: true },
-        { label: 'sobre', href: 'https://viniciusmenezes.com/authors/vinicius-menezes/' }
-      ],
-      socials: [
-        { label: 'Twitter', href: 'https://twitter.com/v1n1c1u5gdm', icon: 'fab fa-twitter', variant: 'twitter' },
-        { label: 'Instagram', href: 'https://www.instagram.com/vm3n3z35/', icon: 'fab fa-instagram', variant: 'instagram' },
-        { label: 'LinkedIn', href: 'https://www.linkedin.com/in/menezesvinicius/', icon: 'fab fa-linkedin', variant: 'linkedin' }
+        { label: 'sobre', routeName: 'about' }
       ]
     }
   },
@@ -97,6 +97,12 @@ export default {
     },
     handleMenuLinkClick() {
       this.isMenuOpen = false
+    },
+    isLinkActive(link) {
+      if (link.routeName) {
+        return this.$route?.name === link.routeName
+      }
+      return Boolean(link.active)
     },
     setBodyScrollState(active) {
       if (typeof document === 'undefined') return
@@ -157,12 +163,15 @@ export default {
   text-transform: uppercase;
 }
 
-.navbar__menu li a {
+.navbar__menu li a,
+.navbar__menu li .navbar__link {
   color: inherit;
 }
 
 .navbar__menu li a:hover,
-.navbar__menu li.active a {
+.navbar__menu li .navbar__link:hover,
+.navbar__menu li.active a,
+.navbar__menu li.active .navbar__link {
   color: var(--side-nav-link-hover);
   text-decoration: none;
 }

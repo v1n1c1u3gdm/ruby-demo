@@ -1,7 +1,8 @@
 require_relative "article_seed_data"
 
 vinicius = Author.find_or_create_by!(name: "Vinicius G.D. Menezes") do |author|
-  author.birthdate = Date.new(1986, 10, 7)
+  sao_paulo_zone = ActiveSupport::TimeZone["America/Sao_Paulo"]
+  author.birthdate = sao_paulo_zone.local(1986, 10, 7).to_date
   author.photo_url = "https://viniciusmenezes.com/media/website/IMG_20220624_123059.jpg"
   author.public_key = ENV.fetch(
     "VINICIUS_PUBLIC_KEY",
@@ -27,6 +28,11 @@ end
     slug: "linkedin",
     profile_link: "https://www.linkedin.com/in/menezesvinicius/",
     description: "Perfil profissional no LinkedIn"
+  },
+  {
+    slug: "github",
+    profile_link: "https://github.com/v1n1c1u3gdm",
+    description: "Portfólio e projetos no GitHub"
   }
 ].each do |social_attrs|
   social = vinicius.socials.find_or_initialize_by(slug: social_attrs[:slug])

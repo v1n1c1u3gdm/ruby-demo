@@ -3,7 +3,9 @@ Rails.application.routes.draw do
   mount Rswag::Ui::Engine => '/api-docs'
   resources :authors
   resources :socials
-  resources :articles
+  resources :articles do
+    get :count_by_author, on: :collection
+  end
 
   get "up" => "rails/health#show", as: :rails_health_check
 

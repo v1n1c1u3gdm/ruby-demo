@@ -3,6 +3,7 @@ import Router from 'vue-router'
 
 import HomeView from '@/views/HomeView.vue'
 import ArticleView from '@/views/ArticleView.vue'
+import AboutView from '@/views/AboutView.vue'
 
 Vue.use(Router)
 
@@ -19,6 +20,11 @@ export default new Router({
       path: '/articles/:slug?',
       name: 'article',
       component: ArticleView
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: AboutView
     }
   ]
 })
