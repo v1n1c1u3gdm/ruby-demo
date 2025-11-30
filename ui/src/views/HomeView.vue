@@ -48,12 +48,13 @@
             aria-label="Paginação de artigos"
           >
             <button
-              class="btn"
+              class="btn btn--icon"
               type="button"
               :disabled="currentPage === 1"
               @click="goToPage(currentPage - 1)"
+              aria-label="Página anterior"
             >
-              Anterior
+              <span aria-hidden="true">‹</span>
             </button>
 
             <span class="pagination__info">
@@ -61,12 +62,13 @@
             </span>
 
             <button
-              class="btn"
+              class="btn btn--icon"
               type="button"
               :disabled="currentPage === totalPages"
               @click="goToPage(currentPage + 1)"
+              aria-label="Próxima página"
             >
-              Próxima
+              <span aria-hidden="true">›</span>
             </button>
           </nav>
         </template>
@@ -287,6 +289,17 @@ export default {
   text-transform: uppercase;
   font-size: 0.75rem;
   background: transparent;
+}
+
+.btn--icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  padding: 0;
+  text-transform: none;
 }
 
 .btn:disabled {
