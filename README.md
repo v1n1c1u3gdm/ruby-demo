@@ -3,12 +3,12 @@
 Repositório reiniciado para uma nova fase: uma API Rails moderna rodando sobre Ruby **3.3.10**, exposta via Puma e com MySQL containerizado. A raiz está organizada em dois módulos:
 
 - `api/` – aplicação Rails 7.2.3 (modo API) utilizando `mysql2`.
-- `ui/` – front-end Vue 2 + [BootstrapVue](https://bootstrap-vue.org/) pronto para consumir a API.
+- `ui/` – front-end Vue 2 + [BootstrapVue](https://bootstrap-vue.org/) pronto para consumir a API, agora com suíte de testes unitários em Jest.
 
 ## Arquitetura & Tecnologias
 
 - **API (`api/`)**: Rails 7.2.3 em Ruby 3.3.10, servida pelo Puma. O projeto está no modo API, usa Active Record com o adapter `mysql2`, expõe a documentação Swagger via RSwag e conversa com o banco através de variáveis fornecidas pelo Docker Compose.
-- **UI (`ui/`)**: Vue 2 criado com Vue CLI e estilizado com BootstrapVue. Em desenvolvimento roda com `npm run serve`; em produção o bundle é entregue por um NGINX gerado em build multi-stage.
+- **UI (`ui/`)**: Vue 2 criado com Vue CLI, BootstrapVue e Jest + Vue Test Utils para testes unitários com cobertura mínima de 85%. Em desenvolvimento roda com `npm run serve`; em produção o bundle é entregue por um NGINX gerado em build multi-stage.
 - **Banco (`db`)**: MySQL 8.4 rodando em container dedicado com volume persistente e credenciais fixas (`ruby-demo` / `2u8y-c0d3`).
 - **Orquestração**: Docker Compose define os serviços `api`, `ui` e `db`, compartilhando a mesma rede bridge para que o Rails consuma o host `db`. O arquivo `docker-compose.yml` também injeta as variáveis de ambiente necessárias para Active Record e para o build do front-end.
 - **Observabilidade**: Instrumentação automática configurada com OpenTelemetry (`opentelemetry-sdk`, `opentelemetry-metrics-sdk` e `opentelemetry-instrumentation-all`). A API publica dois endpoints utilitários – `GET /liveness` para sondagens básicas e `GET /metrics` em formato Prometheus/OpenMetrics para scraping externo.
@@ -81,6 +81,21 @@ Essas variáveis já vêm definidas no `docker-compose.yml`, mas podem ser sobre
 3. Exporte as variáveis de banco (ou use um `.env`) e rode `bin/rails db:prepare`.
 4. Inicie o servidor: `bin/rails server -b 0.0.0.0`.
 5. Abra `http://localhost:3000/` para visualizar o Swagger alimentado pelo RSwag.
+
+## Testes automatizados
+
+### API
+
+Ainda não há suíte automatizada habilitada no módulo Rails, mas o `bin/rails test` permanece disponível caso você queira adicionar Minitest/RSpec.
+
+### UI (Vue 2)
+
+1. `cd ui`
+2. `npm install` (uma única vez).
+3. `npm run test:unit`
+   - Roda Jest + Vue Test Utils com `jest-environment-jsdom`.
+   - O comando já coleta cobertura, que deve permanecer **≥85%** em statements/branches/functions/lines (configurado em `ui/jest.config.js`).
+   - O relatório HTML fica em `ui/coverage/lcov-report/index.html` (pasta ignorada no Git).
 
 ## UI (Vue + BootstrapVue)
 
