@@ -17,7 +17,6 @@
           <div class="hero-overlay">
             <h1 class="hero-title">{{ hero.title }}</h1>
             <hr class="divider" />
-            <p class="hero-subtitle">{{ hero.subtitle }}</p>
           </div>
           <span class="sr-only">{{ article.title }}</span>
         </figure>
@@ -297,7 +296,7 @@ export default {
 
 .article-hero-header {
   padding: 1.5rem 4%;
-  color: var(--hero-text-color);
+  color: var(--white);
 }
 
 .article-hero-header h1 {
@@ -307,7 +306,7 @@ export default {
 
 .article-hero-header p {
   margin: 0;
-  color: var(--gray-1);
+  color: var(--white);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 0.85rem;
