@@ -29,7 +29,7 @@
           <p>
             <time :datetime="article.datetime">{{ article.dateLabel }}</time>
             by
-            <template v-if="article.author?.name">
+            <template v-if="article.author && article.author.name">
               <a
                 v-if="article.author.url"
                 :href="article.author.url"
